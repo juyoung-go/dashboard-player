@@ -18,6 +18,7 @@ class SlideWindow {
     //view 생성
     this.view = new BrowserView({
       show: true,
+      transparent:false,
       webPreferences: {
         devTools:true,
       }
