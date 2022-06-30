@@ -52,7 +52,7 @@ module.exports = function(){
         })
 
     } else {
-        win.loadFile('./webapp/dist/index.html')
+        win.loadFile(path.resolve(__dirname, '../webapp/dist/index.html'))
     }
 
     win.once('ready-to-show', () => {
