@@ -1,0 +1,40 @@
+{
+  "devDependencies": {
+    "electron": "^19.0.6",
+    "electron-builder": "^23.1.0"
+  },
+  "name": "dashboard-player",
+  "version": "1.0.0",
+  "main": "main.js",
+  "dependencies": {
+    
+  },
+  "scripts": {
+    "local": "electron --trace-warnings . 8080",
+    "app": "electron --trace-warnings .",
+    "dev": "cd webapp & npm run serve",
+    "buildweb": "cd webapp & npm run build",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "dashboard-player",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "appmain/**/*",
+      "appscript/**/*",
+      "main.js",
+      "preload.js",
+      "webapp/dist/**/*"
+    ],
+    "extraResources": [
+      
+    ],
+    "asar": true
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
