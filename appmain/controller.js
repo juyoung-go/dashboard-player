@@ -19,7 +19,7 @@ module.exports = function(){
     let isLocal = port && port > 0
 
     win = new BrowserWindow({
-        width: 1280, height: 800,
+        width: 1400, height: 800,
         //minWidth: 360, minHeight: 286,
         title:"Dashboard Controller",
         resizable:true,
