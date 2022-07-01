@@ -102,7 +102,7 @@ module.exports = {
       if(!slide.sec){
         slide.sec = 5 //기본 재생 5초
       }
-      slides.push(new SlideWindow(require('../slides/script/'+slide.scriptName), slide, playerWindow))
+      slides.push(new SlideWindow(slide.scriptName==='direct'?null:require('../slides/script/'+slide.scriptName), slide, playerWindow))
     }
 
     //초기화 기다리기
@@ -119,7 +119,7 @@ module.exports = {
 
   },
   'ready': async function(){
-    
+
     for(let slide of slides){
       slide.ready()
     }
@@ -154,4 +154,17 @@ module.exports = {
 
     }  
   },
+  'destroy': function(){
+    const playerWindow = store.get('player')
+    const views = playerWindow.getBrowserViews()
+    for(let view of views){
+      playerWindow.removeBrowserView(view)
+    }
+    for(let slide of slides){
+      slide.destroy()
+    }
+
+    slides.length = 0
+    
+  }
 }

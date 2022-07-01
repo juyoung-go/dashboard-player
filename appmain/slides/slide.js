@@ -17,6 +17,7 @@ class SlideWindow {
     this.view = new BrowserView({
       show: true,
       transparent:false,
+      backgroundColor:'white',
       webPreferences: {
         devTools:true,
       }
@@ -31,7 +32,11 @@ class SlideWindow {
     this.wc = this.view.webContents;
 
     //load home
-    this.wc.loadURL(this.scriptInfo.home)
+    if(this.scriptInfo){
+      this.wc.loadURL(this.scriptInfo.home)
+    }else if(this.slide.url){
+      this.wc.loadURL(this.slide.url)
+    }
 
     //devtools event
     this.wc.on('before-input-event', (e, input)=>{
@@ -67,18 +72,30 @@ class SlideWindow {
   }
 
   async init(){
+
+    if(!this.scriptInfo){
+      this.status = 'ready'
+      console.log('[init] status set to ['+this.status+']');
+      return
+    }
+
     this.currType = 'init'
     await this.playMain(undefined)
     this.status = 'ready'
     console.log('[init] status set to ['+this.status+']');
   }
 
+  destroy(){
+    this.wc = null
+    this.view = null
+  }
+
   async ready(){
 
-    if(!this.scriptInfo.target){
+    if(!this.scriptInfo || !this.scriptInfo.target){
       return
     }
-    
+
     this.status = 'playing'
     this.currType = 'play'
 
