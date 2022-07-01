@@ -19,13 +19,18 @@
 
     </div>
 
+    <!-- 컨트롤 버튼 영역 2 -->
+    <div class="section-btn">
+      <div style="display:flex;align-items:center;"><input type="checkbox" v-model="autoPlay" @change="setAutoPlay" style="width:20px;"><div>앱 시작시 자동 재생</div></div>
+    </div>
+
     <!-- 데이터셋팅 부분 -->
     <div class="section-data">
 
       <div class="t-title">슬라이드 셋업</div>
 
       <div class="t-row">
-          
+
         <div class="t-col">슬라이드 번호</div>
         <div class="t-col">종류</div>
         <div class="t-col">ID</div>
@@ -72,6 +77,7 @@
 export default {
   name: 'App',
   async created(){
+
     const loaded = this.loadWork()
     if(loaded && loaded instanceof Array){
       this.slideList = loaded
@@ -96,10 +102,16 @@ export default {
       this.nextState()
     })
 
+    this.autoPlay = this.loadAutoPlay()
+    if(this.autoPlay && this.slideList.length > 0){
+      this.invokeWork()
+    }
+
   },
   data(){
     return {
 
+      autoPlay: false,
       processing: false,
       
       playStateSet:{
@@ -194,6 +206,13 @@ export default {
     },
     loadWork(){
       return JSON.parse(window.localStorage.getItem('slide_play_settings'))
+    },
+    loadAutoPlay(){
+      return JSON.parse(window.localStorage.getItem('slide_auto_play'))
+    },
+    setAutoPlay(){
+      window.localStorage.setItem('slide_auto_play', this.autoPlay)
+      console.log('this.autoPlay => ',this.autoPlay);
     }
   }
 }
