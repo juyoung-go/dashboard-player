@@ -9,6 +9,7 @@
     <!-- 컨트롤 버튼 영역 -->
     <div class="section-btn">
 
+      <button v-if="playState !== 'none'" :disabled="processing || playState === 'play'" @click="recreate" class="btn btn-play">슬라이드 다시 생성</button>
       <button v-if="playState === 'none'" :disabled="processing" @click="invokeWork" class="btn btn-play">슬라이드 생성</button>
       <button v-if="playState === 'created'" :disabled="processing" @click="readyWork" class="btn btn-play">슬라이드 준비</button>
       
@@ -33,11 +34,15 @@
 
         <div class="t-col">슬라이드 번호</div>
         <div class="t-col">종류</div>
+        
+        <div class="t-col">주소</div>
         <div class="t-col">ID</div>
         <div class="t-col">PASSWORD</div>
+        
         <div class="t-col">재생시간 (초)</div>
         <div class="t-col">추가</div>
         <div class="t-col">삭제</div>
+        <div class="t-col">이동</div>
         <div class="t-col">보기</div>
         
       </div>
@@ -47,21 +52,30 @@
       <template v-for="(slide, i) in slideList">
         
         <div v-if="i != 0" :key="'hline-'+i" class="t-hline"></div>
-        <div :key="i" class="t-row" :style="isComplete(slide)?'background:lightgreen;':'background:#ff8282;'">
+        <div :key="i" class="t-row" :style="slide.moving?'background:orange;':isComplete(slide)?'background:lightgreen;':'background:#ff8282;'">
           
           <div class="t-col">{{' '+(i + 1)}}</div>
           <div class="t-col">
-            <select v-model="slide.scriptName">
+            <select v-model="slide.scriptName" @change="typeChange(slide)">
               <template v-for="(script, idx) in scriptList">
                 <option :key="idx" :value="script.name">{{script.label}}</option>
               </template>
             </select>
           </div>
-          <div class="t-col"><input v-model="slide.id"></div>
-          <div class="t-col"><input v-model="slide.pass" type="password"></div>
+          <div class="t-col"><input :disabled="slide.scriptName !== 'direct'" v-model="slide.url"></div>
+          <div class="t-col"><input :disabled="slide.scriptName === 'direct'" v-model="slide.id"></div>
+          <div class="t-col"><input :disabled="slide.scriptName === 'direct'" v-model="slide.pass" type="password"></div>
+          <template v-if="slide.scriptName === 'direct'">
+          </template>
+          <template>
+          </template>
           <div class="t-col"><input v-model="slide.sec" type="number" min="0" max="9999" maxlength="4"></div>
           <div class="t-col"><button @click="copySlide(i)">추가</button></div>
           <div class="t-col"><button @click="slideList.length > 1?slideList.splice(slideList.indexOf(slide), 1):null">삭제</button></div>
+          <div class="t-col">
+            <button :disabled="moving" @click="moveSlide(slide, -1)" style="margin-right:5px;">위로</button>
+            <button :disabled="moving" @click="moveSlide(slide, 1)">아래로</button>
+          </div>
           <div class="t-col"><button v-if="playState === 'created'||playState === 'ready'" @click="showSlide(i)">슬라이드 보기</button></div>
 
         </div>
@@ -100,6 +114,9 @@ export default {
       console.log('ready from app!!');
       this.processing = false
       this.nextState()
+      if(this.autoPlay && this.slideList.length > 0){
+        this.playWork()
+      }
     })
 
     this.autoPlay = this.loadAutoPlay()
@@ -113,6 +130,7 @@ export default {
 
       autoPlay: false,
       processing: false,
+      moving:false,
       
       playStateSet:{
         'none':{name:'준비',next:'created'},
@@ -122,6 +140,10 @@ export default {
       },
       playState:'none',
       scriptList:[
+        {
+          name:'direct',
+          label:'직접입력'
+        },
         {
           name:'datadog-migo-admin',
           label:'MIGO Admin (DataDog)'
@@ -140,7 +162,7 @@ export default {
         }
       ],
 
-      defaultSlide:'{"id":null, "pass":null, "scriptName":"", "sec":5}',
+      defaultSlide:'{"id":null, "pass":null, "scriptName":"direct", "sec":5, "url":"", "moving":false}',
       slideList:[],
 
     }
@@ -153,14 +175,23 @@ export default {
       this.playState = this.playStateSet[this.playState].next      
     },
     invokeWork(){
-      this.processing = true
       this.isAllComplete()
+      this.processing = true
       this.$sendToApp('create',
         {
           slideList:this.slideList,
         }
       )
 
+    },
+    recreate(){
+      this.isAllComplete()
+      this.processing = true
+      this.$sendToApp('destroy',
+        {},
+        this,
+        this.invokeWork
+      )
     },
     readyWork(){
       this.processing = true
@@ -184,6 +215,27 @@ export default {
     copySlide(idx){
       this.slideList.splice(idx + 1, 0, this.getDefaultSlide())
     },
+    moveSlide(slide, pos){
+      
+      let idx = this.slideList.indexOf(slide)
+      if(idx + pos < 0 || idx + pos >= this.slideList.length){
+        return
+      }
+
+      this.moving = true
+      this.currSlide = slide
+
+      this.slideList.splice(idx, 1)
+      this.slideList.splice(idx + pos, 0, slide)
+      slide.moving = true
+
+      const self = this
+      setTimeout(()=>{
+        self.currSlide.moving = false
+        self.currSlide = null
+        self.moving = false
+      }, 300)
+    },
     isComplete(slide){
       slide.id && (slide.id = slide.id.trim())
       slide.pass && (slide.pass = slide.pass.trim())
@@ -193,8 +245,9 @@ export default {
     isAllComplete(){
       for(let slide of this.slideList){
         if(!this.isComplete(slide)){
-          window.alert((this.slideList.indexOf(slide) + 1) + ' 번 슬라이드 정보가 모두 입력되지 않았습니다.')
-          return false
+          const msg = (this.slideList.indexOf(slide) + 1) + ' 번 슬라이드 정보가 모두 입력되지 않았습니다.'
+          window.alert(msg)
+          throw new Error(msg)
         }
       }
       return true
@@ -213,6 +266,14 @@ export default {
     setAutoPlay(){
       window.localStorage.setItem('slide_auto_play', this.autoPlay)
       console.log('this.autoPlay => ',this.autoPlay);
+    },
+    typeChange(slide){
+      if(slide.scriptName == 'direct'){
+        slide.id = ''
+        slide.pass = ''
+      }else{
+        slide.url = ''
+      }
     }
   }
 }
