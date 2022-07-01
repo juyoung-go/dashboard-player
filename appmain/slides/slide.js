@@ -13,8 +13,6 @@ class SlideWindow {
     //타겟 윈도우
     this.win = win
 
-    console.log('slide for win => ', win)
-    
     //view 생성
     this.view = new BrowserView({
       show: true,
@@ -64,64 +62,97 @@ class SlideWindow {
     this.currType;
     this.currItem;
     this.reserveNext;
+    this.status = ''
 
   }
 
   async init(){
     this.currType = 'init'
-    this.playMain(undefined)
+    await this.playMain(undefined)
+    this.status = 'ready'
+    console.log('[init] status set to ['+this.status+']');
   }
 
   async ready(){
-    this.currType = 'play'
-    if(!this.scriptInfo.target) return
+
+    if(!this.scriptInfo.target){
+      return
+    }
     
-    console.log('play start with loadURL start', this.scriptInfo.target)
-    this.wc.loadURL(this.scriptInfo.target)
-    this.wc.once('did-finish-load', (e)=>{
-      console.log('play start with loadURL end', this.scriptInfo.target)
-      this.playMain(undefined)
+    this.status = 'playing'
+    this.currType = 'play'
+
+    return new Promise((resolve)=>{
+      
+      try{
+
+        console.log('play start with loadURL start', this.scriptInfo.target)
+        this.wc.loadURL(this.scriptInfo.target)
+        this.wc.once('did-finish-load', async (e)=>{
+          console.log('play start with loadURL end', this.scriptInfo.target)
+          await this.playMain(undefined)
+          this.status = 'ready'
+          console.log('[playing] status set to ['+this.status+']');
+          resolve(true)
+        })
+
+      }catch(e){
+        resolve(false)
+      }
+
     })
+
   }
 
   async playMain(idx){
 
-    try{
-      if(idx === undefined) idx = 0
-      this.currItem = this.scriptInfo[this.currType][idx]
+    return new Promise(async (resolve)=>{
 
-      if(!this.currItem) {
-        console.log('scriptInfo play end at index:'+idx)
-        return
+      try{
+
+        if(idx === undefined) idx = 0
+        this.currItem = this.scriptInfo[this.currType][idx]
+  
+        if(!this.currItem) {
+          resolve(true)
+          console.log('scriptInfo play end at index:'+idx)
+          return
+        }
+  
+        console.log('scriptInfo playing at index:' + idx, this.currItem.code)
+        
+        const id = this.slide.id
+        const pass = this.slide.pass
+        
+        const result = await this.wc.executeJavaScript(
+          this.currItem.code.indexOf('${') >= 0 ? eval(this.currItem.code) : this.currItem.code
+        )
+  
+        console.log('result '+idx, result)
+  
+        if(this.currItem.timeAfter){
+  
+          setTimeout(async ()=>{
+            await this.playMain(idx + 1);
+            resolve(true)
+          }, this.currItem.timeAfter)
+  
+        }else if(this.currItem.eventAfter){
+  
+          this.reserveNext = idx;
+          resolve(true)
+
+        }else{
+          await this.playMain(idx + 1);
+          resolve(true)
+        }
+
+      }catch(e){
+        console.log('playMain ('+idx+') error', e)
+        resolve(false)
       }
 
-      console.log('scriptInfo playing at index:' + idx, this.currItem.code)
-      
-      const id = this.slide.id
-      const pass = this.slide.pass
-      
-      const result = await this.wc.executeJavaScript(
-        this.currItem.code.indexOf('${') >= 0 ? eval(this.currItem.code) : this.currItem.code
-      )
-
-      console.log('result '+idx, result)
-
-      if(this.currItem.timeAfter){
-
-        setTimeout(()=>{
-          this.playMain(idx + 1);
-        }, this.currItem.timeAfter)
-
-      }else if(this.currItem.eventAfter){
-
-        this.reserveNext = idx;
-
-      }else{
-        this.playMain(idx + 1);
-      }
-    }catch(e){
-      console.log('playMain ('+idx+') error', e)
-    }
+    })
   
   }
 

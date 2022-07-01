@@ -9,13 +9,13 @@
     <!-- 컨트롤 버튼 영역 -->
     <div class="section-btn">
 
-      <button v-if="playState === 'none'" @click="invokeWork" class="btn btn-play">슬라이드 생성</button>
-      <button v-if="playState === 'created'" @click="readyWork" class="btn btn-play">슬라이드 준비</button>
+      <button v-if="playState === 'none'" :disabled="processing" @click="invokeWork" class="btn btn-play">슬라이드 생성</button>
+      <button v-if="playState === 'created'" :disabled="processing" @click="readyWork" class="btn btn-play">슬라이드 준비</button>
       
-      <button v-if="playState === 'ready'" @click="playWork" class="btn btn-play">슬라이드 플레이</button>
-      <button v-if="playState === 'play'" @click="stopWork" class="btn btn-play">슬라이드 정지</button>
+      <button v-if="playState === 'ready'" :disabled="processing" @click="playWork" class="btn btn-play">슬라이드 플레이</button>
+      <button v-if="playState === 'play'" :disabled="processing" @click="stopWork" class="btn btn-play">슬라이드 정지</button>
 
-      <button @click="saveWork" class="btn btn-save">슬라이드 정보 저장</button>
+      <button @click="saveWork" :disabled="processing" class="btn btn-save">슬라이드 정보 저장</button>
 
     </div>
 
@@ -78,9 +78,29 @@ export default {
     }else{
       this.slideList.push(this.getDefaultSlide())
     }
+
+    window.app.on('created', (
+      //e, arg
+      ) => {
+      console.log('created from app!!');
+      this.processing = false
+      this.nextState()
+      this.readyWork()
+    })
+
+    window.app.on('ready', (
+      //e, arg
+      ) => {
+      console.log('ready from app!!');
+      this.processing = false
+      this.nextState()
+    })
+
   },
   data(){
     return {
+
+      processing: false,
       
       playStateSet:{
         'none':{name:'준비',next:'created'},
@@ -118,28 +138,21 @@ export default {
       return JSON.parse(this.defaultSlide)
     },
     nextState(){
-      setTimeout(()=>{
-        this.playState = this.playStateSet[this.playState].next
-      }, 1000)
+      this.playState = this.playStateSet[this.playState].next      
     },
     invokeWork(){
-      
+      this.processing = true
       this.isAllComplete()
       this.$sendToApp('create',
         {
           slideList:this.slideList,
-        },
-        this,
-        this.nextState()
+        }
       )
 
     },
     readyWork(){
-      this.$sendToApp('ready',
-        {},
-        this,
-        this.nextState()
-      )
+      this.processing = true
+      this.$sendToApp('ready')
     },
     playWork(){
       this.play = true

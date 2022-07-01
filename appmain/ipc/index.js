@@ -21,3 +21,4 @@ ipcMain.on('sendApp', (e, arg) => {
 
   console.log('sendApp end');
 })
+ipcMain.emit

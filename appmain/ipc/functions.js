@@ -65,8 +65,29 @@ const stopPlay = ()=>{
   playing = false
 }
 
+const waiting = (waitFunction, iterTime)=>{
+  return new Promise((resolve) => {
+    const inter = setInterval(()=>{
+      if(waitFunction()){
+        clearInterval(inter)
+        resolve(true)
+      }
+    }, iterTime | 100)
+    
+  })
+}
+
+const waitReady = ()=>{
+  for(let slide of slides){
+    if(slide.status !== 'ready'){
+      return false
+    }
+  }
+  return true
+}
+
 module.exports = {
-  'create':function(arg){
+  'create':async function(arg){
 
     console.log('work start arg => ', arg)
 
@@ -84,16 +105,32 @@ module.exports = {
       slides.push(new SlideWindow(require('../slides/script/'+slide.scriptName), slide, playerWindow))
     }
 
+    //초기화 기다리기
+    await waiting(waitReady)
+
+    console.log('create wait end');
+
     slides[0] && playerWindow.setTopBrowserView(slides[0].view)
     playerWindow.show()
 
+    const controllerWindow = store.get('controller')
+    controllerWindow.webContents.send('created')
     console.log(cnt + ' slide created')
 
   },
-  'ready': function(){
+  'ready': async function(){
+    
     for(let slide of slides){
       slide.ready()
     }
+
+    await waiting(waitReady)
+
+    const controllerWindow = store.get('controller')
+    controllerWindow.webContents.send('ready')
+
+    console.log(slides.length + ' slide ready')
+
   },
   'play': function(){
     initPlay()

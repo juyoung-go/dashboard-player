@@ -24,7 +24,7 @@ module.exports = function(){
         title:"Dashboard Player",
         resizable:true,
         show: false,
-        frame: true,
+        frame: false,
         transparent:false,
         fullscreenable:true,
         fullscreen:true,
