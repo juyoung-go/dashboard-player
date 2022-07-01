@@ -54,6 +54,8 @@ module.exports = function(){
 
     }
 
+    win.loadFile(path.resolve(__dirname, "./player.html"))
+
     win.once('ready-to-show', () => {
 
         win.show()
