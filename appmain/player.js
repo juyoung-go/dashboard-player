@@ -30,6 +30,7 @@ module.exports = function(){
         fullscreen:true,
         useContentSize:true,
         closable:false,
+        backgroundColor:'white',
         webPreferences: {
             devTools:isLocal,
             nodeIntegration: false, // is default value after Electron v5
