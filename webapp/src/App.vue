@@ -145,16 +145,24 @@ export default {
           label:'직접입력'
         },
         {
-          name:'datadog-migo-admin',
-          label:'MIGO Admin (DataDog)'
+          name:'datadog-migo-dashboard',
+          label:'MIGO Dashboard (DataDog)'
         },
         {
           name:'datadog-rfind-vn',
           label:'RFind Vn (DataDog)'
         },
         {
+          name:'datadog-rsquare-dashboard',
+          label:'RSQUARE Dashboard (DataDog)'
+        },
+        {
           name:'rtb-dashboard-kr',
           label:'RTB 한국'
+        },
+        {
+          name:'rsquare-brand',
+          label:'RSQUARE Brand'
         },
         {
           name:'rsquare-design',
