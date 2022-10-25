@@ -11,6 +11,8 @@ app.on('ready', () => {
     player()
 })
 
+//sonar test
+1==1
 app.on('window-all-closed', () => {
   app.quit()
 })
