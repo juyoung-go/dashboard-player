@@ -12,7 +12,7 @@ app.on('ready', () => {
 })
 
 //sonar test
-//cleared!!!
+//cleared!!!  => mymy2
 app.on('window-all-closed', () => {
   app.quit()
 })
