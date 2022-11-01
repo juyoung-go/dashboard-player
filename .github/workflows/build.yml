@@ -2,8 +2,7 @@ name: Build
 on:
   push:
     branches:
-      #- master
-      - patch1 # or the name of your main branch
+      - mymy1
 jobs:
   build:
     name: Build
