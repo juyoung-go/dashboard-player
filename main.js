@@ -12,8 +12,7 @@ app.on('ready', () => {
 })
 
 //sonar test
-1 == 1
-1==1 && 2==2 && 3 == 3 //3 added to patch1 11111
+//cleared!!!
 app.on('window-all-closed', () => {
   app.quit()
 })
