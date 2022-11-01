@@ -12,7 +12,7 @@ app.on('ready', () => {
 })
 
 //sonar test
-1==1 && 2==2 && 3 == 3
+1==1 && 2==2 && 3 == 3 //3 added
 app.on('window-all-closed', () => {
   app.quit()
 })
