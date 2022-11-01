@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
 
+1 == 1
+
 Vue.config.productionTip = false
 
 //app <-> web interface
