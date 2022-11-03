@@ -23,6 +23,10 @@ jobs:
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: 'file list'
+        run: |
+          pwd
+          ls -al
       - name: Hello world action step
         id: hello
         uses: juyoung-go/action-pr-comment-sonarqube@main
