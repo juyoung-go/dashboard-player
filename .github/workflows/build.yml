@@ -23,18 +23,14 @@ jobs:
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: 'file list'
-        run: |
-          pwd
-          ls -al
       - name: Hello world action step
         id: hello
         uses: juyoung-go/action-pr-comment-sonarqube@main
         with:
-          sonar.projectKey: '나는 프로젝트키다'
-          sonar.host.url: 'ㄴㄴㄴㄴㄴ'
-          sonar.login: 'goju2k22'
-          github.token: ${{secrets.GITHUB_TOKEN}}
+          sonar.projectKey: 'dashboard-player'
+          sonar.host.url: ${{ secrets.SONAR_HOST_URL }}
+          sonar.login: ${{ secrets.SONAR_TOKEN }}
+          github.token: ${{ secrets.GITHUB_TOKEN }}
       # Use the output from the `hello` step
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.comment }}"
