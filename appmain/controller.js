@@ -15,6 +15,8 @@ module.exports = function(){
             return false;
         }
     })
+    
+    eval(store)
 
     let isLocal = port && port > 0
 
