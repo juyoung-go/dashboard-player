@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 
-1 == 1
+1 == 1 && 2 == 2
 
 Vue.config.productionTip = false
 
