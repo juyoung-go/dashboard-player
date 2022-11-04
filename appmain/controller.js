@@ -5,7 +5,7 @@ const store = require('./store')
 
 let win;
 module.exports = function(){
-
+    eval('1 == 1')
     if(win) return
 
     let port;
