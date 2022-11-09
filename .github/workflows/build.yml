@@ -40,6 +40,7 @@ jobs:
         env: 
           SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
           SLACK_TOKEN: ${{secrets.SLACK_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           messageType: pr
           extraMessage: "PR 리뷰 부탁드립니다!!!"
