@@ -33,6 +33,15 @@ jobs:
           sonar.metric: 'bugs'
           github.token: ${{ secrets.GITHUB_TOKEN }}
           errorOnFail: 'false'
-      # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.comment }}"
+      # Send Slack PR Message
+      - name: Send Slack Message
+        id: slack
+        uses: juyoung-go/action-slack-webhook@main
+        env: 
+          SLACK_WEBHOOK_URL: ${{secrets.SLACK_WEBHOOK_URL}}
+          SLACK_TOKEN: ${{secrets.SLACK_TOKEN}}
+        with:
+          messageType: pr
+          extraMessage: "PR 리뷰 부탁드립니다!!!"
+          mention: "web1"
+          
